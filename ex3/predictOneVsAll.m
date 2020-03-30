@@ -30,6 +30,8 @@ X = [ones(m, 1) X];
 %       for each row.
 %       
 
+predict=X*all_theta'
+[~,p]=max(predict,[],2);
 
 
 
