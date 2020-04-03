@@ -7,6 +7,9 @@ function [X_norm, mu, sigma] = featureNormalize(X)
 
 % You need to set these values correctly
 X_norm = X;
+
+%%take the second param of size is row, first is column
+%size(X,1)=47, size(X,2)=2 size(X)=47 2 
 mu = zeros(1, size(X, 2));
 sigma = zeros(1, size(X, 2));
 
