@@ -25,7 +25,9 @@ h_theta=sigmoid(X*theta)
 
 J=(-1/m)*sum(log(h_theta).*y+log(1-h_theta).*(1-y))
 grad-=(-1/m)*X'*(sigmoid(X*theta)-y)
-%grad=(1/m)*sum((h_theta-y).*X)
+
+% differnet aprroch but with negative
+%grad=(1/m)*((sigmoid(X*theta).-y)'*X)'
 
 
 
