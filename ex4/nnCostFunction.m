@@ -62,21 +62,42 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+%Cost function
+y_matrix=zeros(size(X,1),num_labels);
+for i=1:length(y)
+    y_matrix(i,y(i))=1;
+end
+
+X=[ones(size(X,1),1) X];
+a2=sigmoid(X*Theta1');
+a2_new=[ones(size(a2,1),1) a2];
+a3=sigmoid(a2_new*Theta2');
+J=sum((-1/m)*sum(log(a3).*y_matrix+log(1-a3).*(1-y_matrix)));
+
+%W/ Regularizeation
+R=(lambda/(2*m))*(sum(sum(Theta1(:,2:size(Theta1,2)).^2))+sum(sum(Theta2(:,2:size(Theta2,2)).^2)));
+J=J+R;
+
+%Theta1 25*401
+%Theta2 10 *26
+
+%Back Prpagation
+delta3=a3-y_matrix; % 5000 x 10 = a3
+delta2=(delta3      * Theta2).*[ones(size(a2,1),1) sigmoidGradient(a2)];
+       %5000x10      10x26      5000 x 26 =a2
+
+D2=delta3'*a2_new;
+   %10x5000  5000x26 =Theta2(10x26)
+D1=delta2(:,2:end)'*X;
+    %25x5000        5000x401 = Theta1(25x401)
+
+Theta1_grad=(1/m)*D1;
+Theta2_grad=(1/m)*D2;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+%Back Propagation W/ Regularization
+Theta1_grad(:,2:end) += (lambda/m)*(Theta1(:,2:end));
+Theta2_grad(:,2:end) += (lambda/m)*(Theta2(:,2:end));
 
 
 
