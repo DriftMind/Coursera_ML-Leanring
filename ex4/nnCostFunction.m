@@ -1,8 +1,8 @@
 function [J grad] = nnCostFunction(nn_params, ...
-                                   input_layer_size, ...
-                                   hidden_layer_size, ...
-                                   num_labels, ...
-                                   X, y, lambda)
+    input_layer_size, ...
+    hidden_layer_size, ...
+    num_labels, ...
+    X, y, lambda)
 %NNCOSTFUNCTION Implements the neural network cost function for a two layer
 %neural network which performs classification
 %   [J grad] = NNCOSTFUNCTON(nn_params, hidden_layer_size, num_labels, ...
@@ -17,14 +17,14 @@ function [J grad] = nnCostFunction(nn_params, ...
 % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
 % for our 2 layer neural network
 Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
-                 hidden_layer_size, (input_layer_size + 1));
+hidden_layer_size, (input_layer_size + 1));
 
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
-                 num_labels, (hidden_layer_size + 1));
+num_labels, (hidden_layer_size + 1));
 
 % Setup some useful variables
 m = size(X, 1);
-         
+
 % You need to return the following variables correctly 
 J = 0;
 Theta1_grad = zeros(size(Theta1));
@@ -68,37 +68,66 @@ for i=1:length(y)
     y_matrix(i,y(i))=1;
 end
 
-X=[ones(size(X,1),1) X];
-a2=sigmoid(X*Theta1');
-a2_new=[ones(size(a2,1),1) a2];
-a3=sigmoid(a2_new*Theta2');
+a1=[ones(m,1) X];
+z2=(a1*Theta1'); %5000x401 401x25
+a2=[ones(size(z2,1),1) sigmoid(z2)]; %5000 x 26
+a3=sigmoid(a2*Theta2');   %5000x26 26x10 
 J=sum((-1/m)*sum(log(a3).*y_matrix+log(1-a3).*(1-y_matrix)));
 
 %W/ Regularizeation
 R=(lambda/(2*m))*(sum(sum(Theta1(:,2:size(Theta1,2)).^2))+sum(sum(Theta2(:,2:size(Theta2,2)).^2)));
-J=J+R;
+J+=R;
 
+
+%---------------------------------------%
+%Back Prpagation
 %Theta1 25*401
 %Theta2 10 *26
+delta3=a3-y_matrix; %5000 x10 =a3
+delta2=(delta3*Theta2).*[ones(size(z2,1),1) sigmoidGradient(z2)];
+       %5000x10 10x26               %5000x26 =z2
 
-%Back Prpagation
-delta3=a3-y_matrix; % 5000 x 10 = a3
-delta2=(delta3      * Theta2).*[ones(size(a2,1),1) sigmoidGradient(a2)];
-       %5000x10      10x26      5000 x 26 =a2
+DELTA1=delta2(:,2:end)' * a1;
+    %25x5000       %5000x401      %25x401 (Theta1)
+DELTA2=delta3' *a2;
+    %10x5000  5000x26                   %10x26 (Theta2)
 
-D2=delta3'*a2_new;
-   %10x5000  5000x26 =Theta2(10x26)
-D1=delta2(:,2:end)'*X;
-    %25x5000        5000x401 = Theta1(25x401)
-
-Theta1_grad=(1/m)*D1;
-Theta2_grad=(1/m)*D2;
-
+Theta1_grad += (1/m) * DELTA1;
+Theta2_grad += (1/m) * DELTA2;
 
 %Back Propagation W/ Regularization
-Theta1_grad(:,2:end) += (lambda/m)*(Theta1(:,2:end));
-Theta2_grad(:,2:end) += (lambda/m)*(Theta2(:,2:end));
+Theta1_grad(:,2:end) +=(lambda/m)*(Theta1(:,2:end));
+Theta2_grad(:,2:end) +=(lambda/m)*(Theta2(:,2:end));
 
+
+
+
+
+%----single testing then feedback failed-----%
+
+%D1=0;
+%D2=0;
+%Theta1 25*401
+%Theta2 10 *26
+%for i=1:m
+%    a1=[1;X(i,:)']; %401x1
+%    z2=Theta1*a1; %25x401 401x1=25x1
+%    a2=[1;sigmoid(z2)]; %26x1
+%    a3=Theta2*a2;%10x1
+
+
+%    delta3=a3-y_matrix(i,:)'; %10x1
+%    delta2=Theta2'*delta3 .*[1;sigmoidGradient(z2)];
+        %26x10     10x1   .*   26x1   =26x1
+    
+%    D1+=delta2(2:end,1) *a1';
+        %25x1     1x401 =25x401
+%    D2+=delta3*a2';
+        %10x1  1x26 =10 x26         
+%end
+
+%Theta1_grad=D1/m;
+%Theta2_grad=D2/m;
 
 
 % -------------------------------------------------------------
