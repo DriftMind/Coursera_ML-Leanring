@@ -79,8 +79,7 @@ R=(lambda/(2*m))*(sum(sum(Theta1(:,2:size(Theta1,2)).^2))+sum(sum(Theta2(:,2:siz
 J+=R;
 
 
-%---------------------------------------%
-%Back Prpagation
+%---------------Batch BP feedback accumulation------------------------%
 %Theta1 25*401
 %Theta2 10 *26
 delta3=a3-y_matrix; %5000 x10 =a3
@@ -92,6 +91,21 @@ DELTA1=delta2(:,2:end)' * a1;
 DELTA2=delta3' *a2;
     %10x5000  5000x26                   %10x26 (Theta2)
 
+
+
+%----single test then BP feedback accumulation-----%
+%DELTA1=zeros(size(Theta1));
+%DELTA2=zeros(size(Theta2));
+%for i=1:m
+%    delta3=a3(i,:)'-y_matrix(i,:)'; %10x1
+%    delta2=Theta2'*delta3.*[1 sigmoidGradient(z2(i,:))]';
+%      %26x1  10x26 10x1  .*  26x1
+%    DELTA1+=delta2(2:end,:)*a1(i,:);
+%      %25x401      %25x1          1x401
+%    DELTA2+=delta3*a2(i,:);
+%      %10x26  10x1  1x26
+%end
+
 Theta1_grad += (1/m) * DELTA1;
 Theta2_grad += (1/m) * DELTA2;
 
@@ -100,34 +114,6 @@ Theta1_grad(:,2:end) +=(lambda/m)*(Theta1(:,2:end));
 Theta2_grad(:,2:end) +=(lambda/m)*(Theta2(:,2:end));
 
 
-
-
-
-%----single testing then feedback failed-----%
-
-%D1=0;
-%D2=0;
-%Theta1 25*401
-%Theta2 10 *26
-%for i=1:m
-%    a1=[1;X(i,:)']; %401x1
-%    z2=Theta1*a1; %25x401 401x1=25x1
-%    a2=[1;sigmoid(z2)]; %26x1
-%    a3=Theta2*a2;%10x1
-
-
-%    delta3=a3-y_matrix(i,:)'; %10x1
-%    delta2=Theta2'*delta3 .*[1;sigmoidGradient(z2)];
-        %26x10     10x1   .*   26x1   =26x1
-    
-%    D1+=delta2(2:end,1) *a1';
-        %25x1     1x401 =25x401
-%    D2+=delta3*a2';
-        %10x1  1x26 =10 x26         
-%end
-
-%Theta1_grad=D1/m;
-%Theta2_grad=D2/m;
 
 
 % -------------------------------------------------------------
