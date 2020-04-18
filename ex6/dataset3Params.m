@@ -24,6 +24,24 @@ sigma = 0.3;
 %
 
 
+%values=[0.01 0.03 0.1 0.3 1 3 10 30];
+error_min=inf;
+for C_values=[0.01 0.03 0.1 0.3 1 3 10 30]
+%for C=values
+    for sigma_values=[0.01 0.03 0.1 0.3 1 3 10 30]
+    %for sigma=values
+        model=svmTrain(X,y,C_values,@(x1,x2) gaussianKernel(x1,x2,sigma_values));
+        prediction=mean(double(svmPredict(model,Xval)~=yval));
+        if prediction<=error_min
+            error_min=prediction;
+            C=C_values;
+            sigma=sigma_values;
+            fprintf('New min found C=%f, sigma=%f with error=%f',C,sigma,error_min);
+        end
+    end
+end
+
+
 
 
 
