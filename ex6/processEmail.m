@@ -99,11 +99,11 @@ while ~isempty(email_contents)
 
 
     for i=1:length(vocabList)
-        while(strcmp(str,vocabList{i}))
+        if(strcmp(str,vocabList{i})==1)
             word_indices=[word_indices;i];
         end
     end
-    word_indices
+    %There is problem by while loop, not recognized 'endwhile'
 
 
 
