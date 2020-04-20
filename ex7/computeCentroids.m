@@ -27,9 +27,21 @@ centroids = zeros(K, n);
 %
 
 
-
-
-
+for i=1:K
+    number=0;
+    position=[];
+    for j=1:m
+        if (idx(j)==i)
+            position=[position;X(j,:)];
+            number+=1;
+        end
+    end
+    if(number==0)
+        centroids(i,:)=[0,0];
+    else
+        centroids(i,:)=sum(position,1)/number;
+    end
+end
 
 
 
